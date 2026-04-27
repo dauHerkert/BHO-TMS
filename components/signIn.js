@@ -17,7 +17,7 @@ import toastr from 'toastr';
     const pageLanguage = getAuthPageLanguage();
     let urlLang = pageLanguage === 'de' ? '/de' : '/en';
 
-    const signInForm = e.currentTarget;
+    const signInForm = document.getElementById('wf-form-signin-form') || e.currentTarget || document.body;
     if (signInForm.dataset.authLoading === 'true') {
       return;
     }
@@ -111,18 +111,13 @@ export function signInPage(){
 
     document.addEventListener('click', function(e) {
       const customButton = e.target.closest('.button-main');
-      const form = customButton ? customButton.closest('#wf-form-signin-form') : null;
 
-      if (!form || customButton.matches('button, input')) {
+      if (!customButton || customButton.matches('button, input')) {
         return;
       }
 
       e.preventDefault();
-      if (form.requestSubmit) {
-        form.requestSubmit();
-      } else {
-        form.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
-      }
+      handleSignIn(e);
     }, true);
   }
 }

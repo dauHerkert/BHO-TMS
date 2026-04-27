@@ -258,7 +258,7 @@ async function handleSignUp(e) {
   var confirm_password = document.getElementById("password-confirm").value;
   const profile_img = document.getElementById('profile_img');
   let storedLang = getAuthPageLanguage();
-  const signUpForm = e.currentTarget;
+  const signUpForm = document.getElementById('wf-form-signup-form') || e.currentTarget || document.body;
 
   if (signUpForm.dataset.authLoading === 'true') {
     return;
@@ -609,18 +609,13 @@ export function signUpPage() {
 
     document.addEventListener('click', function(e) {
       const customButton = e.target.closest('.button-main');
-      const form = customButton ? customButton.closest('#wf-form-signup-form') : null;
 
-      if (!form || customButton.matches('button, input')) {
+      if (!customButton || customButton.matches('button, input')) {
         return;
       }
 
       e.preventDefault();
-      if (form.requestSubmit) {
-        form.requestSubmit();
-      } else {
-        form.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
-      }
+      handleSignUp(e);
     }, true);
   }
   //getDateSignUp()
