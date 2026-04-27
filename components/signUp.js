@@ -3,6 +3,7 @@ import {doc,getDoc,setDoc,updateDoc,addDoc,collection,getDocs,ref,getDownloadURL
 import Cropper from 'cropperjs';
 import toastr from 'toastr';
 import { getUserInfo, escapeHtml } from './ab_base';
+import { setFormSubmitLoading } from './authLoading';
 import 'select2';
 import 'select2/dist/css/select2.min.css';
 
@@ -174,7 +175,7 @@ async function setDefaultFields(user) {
   sessionStorage.setItem('user_email', user.email);
   sessionStorage.setItem('userID', user.uid);
   // Use the setDoc function to set the userDefaultValues object
-  setDoc(userRef, userDefaultValues, { merge: true })
+  return setDoc(userRef, userDefaultValues, { merge: true })
     .then(async () => {
     await userUploadImage(user, tempImageId, hiddenProfileInput, fileItem);
     const oldImagePath = `profiles/${tempImageId}`;
@@ -239,6 +240,7 @@ async function setDefaultFields(user) {
   .catch((err) => {
       console.log('there was a problem updating the data', err);
       toastr.error('There was an error updating your info');
+      throw err;
   });
 };
 
@@ -248,7 +250,7 @@ async function setDefaultFields(user) {
   * Handles the sign-up process by creating a new user with the provided email, password, and profile image. It sets default fields for the user and collects
   * additional information.
 =============================================================================================================================================================*/
-function handleSignUp(e) {
+async function handleSignUp(e) {
   e.preventDefault();
   e.stopPropagation();
   const email = document.getElementById('signup-email').value;
@@ -256,25 +258,36 @@ function handleSignUp(e) {
   var confirm_password = document.getElementById("password-confirm").value;
   const profile_img = document.getElementById('profile_img');
   let storedLang = localStorage.getItem("language");
+  const signUpForm = e.currentTarget;
+
+  if (signUpForm.dataset.authLoading === 'true') {
+    return;
+  }
 
   if (profile_img.files.length === 0) {
     toastr.error('Please upload your profile picture')
   } else {
     if (password == confirm_password) {
-      createUserWithEmailAndPassword(auth, escapeHtml(email), password)
-        .then(userCredential => {
+      const loadingText = storedLang && storedLang === 'de' ? 'Registrierung...' : 'Registering...';
+      const resetLoadingState = setFormSubmitLoading(signUpForm, loadingText);
+
+      try {
+        const userCredential = await createUserWithEmailAndPassword(auth, escapeHtml(email), password);
           // Signed in
           const user = userCredential.user;
           sessionStorage.setItem('userID', user.uid);
-          setDefaultFields(user);
           console.log('Go to userExtraInfo()');
           userExtraInfo(e, user);
+          await setDefaultFields(user);
           toastr.success('user successfully created: ' + user.email);
-        })
-        .catch((error) => {
+      } catch (error) {
+          resetLoadingState();
           const errorCode = error.code;
           const errorMessage = error.message;
           console.log('errorCode: errorMessage', errorCode, ': ', errorMessage);
+          if (!errorCode) {
+            return;
+          }
           if (storedLang && storedLang === 'de') {
             if (errorCode == 'auth/invalid-email') {
               toastr.error('Ungültiges E-Mail-Format, bitte überprüfen Sie, ob es ein @ und eine gültige Domänenerweiterung (z. B. .com, .net) enthält.'); 
@@ -292,7 +305,7 @@ function handleSignUp(e) {
               toastr.error('The email has already been used. Please choose another email.');
             }
           }
-        });
+      }
     } else {
       toastr.error('Password confirmation does not match');
     }

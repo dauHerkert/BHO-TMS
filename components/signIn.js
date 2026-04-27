@@ -1,5 +1,6 @@
 import { URLACCOUNT, URLADMIN } from './a_constants';
 import {signInWithEmailAndPassword,auth,doc,db,getDoc,updateDoc, user} from './a_firebaseConfig';
+import { setFormSubmitLoading } from './authLoading';
 import toastr from 'toastr'; 
 
 // ============ Handle singin ===============
@@ -19,6 +20,12 @@ import toastr from 'toastr';
       urlLang = '/de';
     }
 
+    const signInForm = e.currentTarget;
+    if (signInForm.dataset.authLoading === 'true') {
+      return;
+    }
+
+    const resetLoadingState = setFormSubmitLoading(signInForm, urlLang === '/de' ? 'Einloggen...' : 'Signing in...');
     const email = document.getElementById('signin-email').value;
     const password = document.getElementById('signin-password').value;
 
@@ -58,6 +65,7 @@ import toastr from 'toastr';
           }, 1000);
         } else {
           toastr.error('user does not exist');
+          resetLoadingState();
         }
       } else if (userData.user_deleted) {
         if (urlLang == '/de') {
@@ -65,16 +73,19 @@ import toastr from 'toastr';
         } else {
           toastr.error('Your account has been deleted.');
         }
+        resetLoadingState();
       } else {
         if (urlLang == '/de') {
           toastr.error('Bitte klicken Sie zuerst auf den Link den sie per email erhalten haben.')
         } else {
           toastr.error('Please click on the link in your email first in order to sign in.');
         }
+        resetLoadingState();
       }
     } catch (error) {
       const errorMessage = error.message;
       toastr.error(errorMessage);
+      resetLoadingState();
     }
   }
 
