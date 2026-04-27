@@ -3,12 +3,12 @@ import {signInWithEmailAndPassword,auth,doc,db,getDoc,updateDoc, user} from './a
 import { getAuthLoadingText, getAuthPageLanguage, setFormSubmitLoading } from './authLoading';
 import toastr from 'toastr'; 
 
-const SIGNIN_SUBMIT_BUTTON_ID = 'signin-submit-button';
+const SIGNIN_SUBMIT_BUTTON_IDS = ['signin-submit-button', 'signin_button', 'signin-button'];
 
 function isSignInSubmitButton(e) {
   const submitter = e.submitter || document.activeElement;
 
-  return submitter && submitter.id === SIGNIN_SUBMIT_BUTTON_ID;
+  return submitter && SIGNIN_SUBMIT_BUTTON_IDS.includes(submitter.id);
 }
 
 // ============ Handle singin ===============

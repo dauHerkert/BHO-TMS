@@ -7,12 +7,12 @@ import { getAuthLoadingText, getAuthPageLanguage, setFormSubmitLoading } from '.
 import 'select2';
 import 'select2/dist/css/select2.min.css';
 
-const SIGNUP_SUBMIT_BUTTON_ID = 'signup-submit-button';
+const SIGNUP_SUBMIT_BUTTON_IDS = ['signup-submit-button', 'signup_button', 'signup-button'];
 
 function isSignUpSubmitButton(e) {
   const submitter = e.submitter || document.activeElement;
 
-  return submitter && submitter.id === SIGNUP_SUBMIT_BUTTON_ID;
+  return submitter && SIGNUP_SUBMIT_BUTTON_IDS.includes(submitter.id);
 }
 
 //placeholder: 'Firma auswählen',
@@ -280,7 +280,7 @@ async function handleSignUp(e) {
     toastr.error('Please upload your profile picture')
   } else {
     if (password == confirm_password) {
-      const resetLoadingState = setFormSubmitLoading(signUpForm, getAuthLoadingText('signup'));
+      const resetLoadingState = setFormSubmitLoading(signUpForm, getAuthLoadingText('signup'), { blockPage: true });
 
       try {
         const userCredential = await createUserWithEmailAndPassword(auth, escapeHtml(email), password);

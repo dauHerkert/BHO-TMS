@@ -34,36 +34,42 @@ export function getAuthLoadingText(action) {
   return defaultTexts[action][language];
 }
 
-export function setFormSubmitLoading(form, loadingText) {
+export function setFormSubmitLoading(form, loadingText, options = {}) {
   if (!form) {
     return function resetLoadingState() {};
   }
 
-  const overlay = document.createElement('div');
-  const loadingBox = document.createElement('div');
-  const spinner = document.createElement('span');
-  const message = document.createElement('span');
-  const style = document.createElement('style');
+  const shouldBlockPage = options.blockPage === true;
+  let overlay = null;
+  let style = null;
 
-  style.textContent = '@keyframes authLoadingSpin{to{transform:rotate(360deg)}}';
-  document.head.appendChild(style);
+  if (shouldBlockPage) {
+    overlay = document.createElement('div');
+    const loadingBox = document.createElement('div');
+    const spinner = document.createElement('span');
+    const message = document.createElement('span');
+    style = document.createElement('style');
 
-  overlay.className = 'auth-loading-overlay';
-  overlay.setAttribute('role', 'status');
-  overlay.setAttribute('aria-live', 'polite');
-  overlay.style.cssText = 'position:fixed;inset:0;z-index:2147483647;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.72);backdrop-filter:blur(2px);';
+    style.textContent = '@keyframes authLoadingSpin{to{transform:rotate(360deg)}}';
+    document.head.appendChild(style);
 
-  loadingBox.className = 'auth-loading-box';
-  loadingBox.style.cssText = 'display:flex;align-items:center;gap:12px;padding:16px 20px;background:#ffffff;color:#111111;border:1px solid rgba(0,0,0,0.14);border-radius:6px;box-shadow:0 12px 36px rgba(0,0,0,0.18);font-family:Arial,sans-serif;font-size:15px;font-weight:600;line-height:1.2;';
+    overlay.className = 'auth-loading-overlay';
+    overlay.setAttribute('role', 'status');
+    overlay.setAttribute('aria-live', 'polite');
+    overlay.style.cssText = 'position:fixed;inset:0;z-index:2147483647;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.72);backdrop-filter:blur(2px);';
 
-  spinner.className = 'auth-loading-spinner';
-  spinner.style.cssText = 'display:block;width:18px;height:18px;border:2px solid #d0d0d0;border-top-color:#111111;border-radius:50%;animation:authLoadingSpin 0.8s linear infinite;';
+    loadingBox.className = 'auth-loading-box';
+    loadingBox.style.cssText = 'display:flex;align-items:center;gap:12px;padding:16px 20px;background:#ffffff;color:#111111;border:1px solid rgba(0,0,0,0.14);border-radius:6px;box-shadow:0 12px 36px rgba(0,0,0,0.18);font-family:Arial,sans-serif;font-size:15px;font-weight:600;line-height:1.2;';
 
-  message.textContent = loadingText || 'Processing...';
-  loadingBox.appendChild(spinner);
-  loadingBox.appendChild(message);
-  overlay.appendChild(loadingBox);
-  document.body.appendChild(overlay);
+    spinner.className = 'auth-loading-spinner';
+    spinner.style.cssText = 'display:block;width:18px;height:18px;border:2px solid #d0d0d0;border-top-color:#111111;border-radius:50%;animation:authLoadingSpin 0.8s linear infinite;';
+
+    message.textContent = loadingText || 'Processing...';
+    loadingBox.appendChild(spinner);
+    loadingBox.appendChild(message);
+    overlay.appendChild(loadingBox);
+    document.body.appendChild(overlay);
+  }
 
   const submitButton = form.querySelector('button[type="submit"], input[type="submit"]') || form.querySelector('.w-button');
   form.dataset.authLoading = 'true';
@@ -73,8 +79,8 @@ export function setFormSubmitLoading(form, loadingText) {
     return function resetLoadingState() {
       form.dataset.authLoading = 'false';
       form.removeAttribute('aria-busy');
-      overlay.remove();
-      style.remove();
+      if (overlay) { overlay.remove(); }
+      if (style) { style.remove(); }
     };
   }
 
@@ -100,8 +106,8 @@ export function setFormSubmitLoading(form, loadingText) {
   return function resetLoadingState() {
     form.dataset.authLoading = 'false';
     form.removeAttribute('aria-busy');
-    overlay.remove();
-    style.remove();
+    if (overlay) { overlay.remove(); }
+    if (style) { style.remove(); }
     submitButton.disabled = wasDisabled;
     submitButton.classList.remove('disabled', 'is-loading');
     submitButton.style.cursor = originalCursor;
