@@ -29,6 +29,10 @@ export function getAuthLoadingText(action) {
       de: 'Registrierung...',
       en: 'Registering...',
     },
+    forgotPassword: {
+      de: 'E-Mail wird gesendet...',
+      en: 'Sending email...',
+    },
   };
 
   return defaultTexts[action][language];
@@ -71,7 +75,7 @@ export function setFormSubmitLoading(form, loadingText, options = {}) {
     document.body.appendChild(overlay);
   }
 
-  const submitButton = form.querySelector('button[type="submit"], input[type="submit"]') || form.querySelector('.w-button');
+  const submitButton = options.submitButtonId ? document.getElementById(options.submitButtonId) : form.querySelector('button[type="submit"], input[type="submit"]') || form.querySelector('.w-button');
   form.dataset.authLoading = 'true';
   form.setAttribute('aria-busy', 'true');
 

@@ -7,6 +7,7 @@ import { pageAccount } from './accountPage';
 import { pageSupplier } from './supplierPage';
 import { pageAdmin } from './adminPage';
 import { pageCompaniesTable } from './companiesPage';
+import { getAuthLoadingText, getAuthPageLanguage, setFormSubmitLoading } from './authLoading';
 import toastr from 'toastr';
 
 /*==================================================================================================================================================================
@@ -276,7 +277,7 @@ function checkUrlParameter() {
 if(window.location.pathname == '/en/forgoten-password' || window.location.pathname == '/de/forgoten-password'){
   let email = document.getElementById('email_address');
   let resetPasword = document.getElementById('forgot_password');
-  let storedLang = localStorage.getItem('language');
+  let storedLang = getAuthPageLanguage();
   let urlLang = '/en';
   if (storedLang && storedLang === 'de') {
     urlLang = '/de';
@@ -285,6 +286,12 @@ if(window.location.pathname == '/en/forgoten-password' || window.location.pathna
   resetPasword.addEventListener('submit', function(e){
     e.preventDefault();
     e.stopPropagation();
+
+    if (resetPasword.dataset.authLoading === 'true') {
+      return;
+    }
+
+    const resetLoadingState = setFormSubmitLoading(resetPasword, getAuthLoadingText('forgotPassword'), { submitButtonId: 'submit_email' });
 
     localStorage.setItem('email', JSON.stringify(email.value));
 
@@ -298,6 +305,7 @@ if(window.location.pathname == '/en/forgoten-password' || window.location.pathna
       }, 2000);
     })
     .catch((error) => {
+      resetLoadingState();
       const errorCode = error.code;
       const errorMessage = error.message;
       console.log('errorCode: errorMessage', errorCode, ': ', errorMessage);
