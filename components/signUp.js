@@ -3,7 +3,7 @@ import {doc,getDoc,setDoc,updateDoc,addDoc,collection,getDocs,ref,getDownloadURL
 import Cropper from 'cropperjs';
 import toastr from 'toastr';
 import { getUserInfo, escapeHtml } from './ab_base';
-import { setFormSubmitLoading } from './authLoading';
+import { getAuthLoadingText, getAuthPageLanguage, setFormSubmitLoading } from './authLoading';
 import 'select2';
 import 'select2/dist/css/select2.min.css';
 
@@ -121,7 +121,7 @@ async function setDefaultFields(user) {
   const tempImageId = sessionStorage.getItem("tempImageId");
   const profile_img = document.getElementById('profile_img');
   let fileItem = profile_img.files[0];
-  let storedLang = localStorage.getItem("language");
+  let storedLang = getAuthPageLanguage();
   const special_requests = document.getElementById('special_requests');
 
   if (user_firstname.value && user_lastname.value) {
@@ -268,8 +268,7 @@ async function handleSignUp(e) {
     toastr.error('Please upload your profile picture')
   } else {
     if (password == confirm_password) {
-      const loadingText = storedLang && storedLang === 'de' ? 'Registrierung...' : 'Registering...';
-      const resetLoadingState = setFormSubmitLoading(signUpForm, loadingText);
+      const resetLoadingState = setFormSubmitLoading(signUpForm, getAuthLoadingText('signup'));
 
       try {
         const userCredential = await createUserWithEmailAndPassword(auth, escapeHtml(email), password);

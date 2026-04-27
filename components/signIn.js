@@ -1,6 +1,6 @@
 import { URLACCOUNT, URLADMIN } from './a_constants';
 import {signInWithEmailAndPassword,auth,doc,db,getDoc,updateDoc, user} from './a_firebaseConfig';
-import { setFormSubmitLoading } from './authLoading';
+import { getAuthLoadingText, getAuthPageLanguage, setFormSubmitLoading } from './authLoading';
 import toastr from 'toastr'; 
 
 // ============ Handle singin ===============
@@ -14,18 +14,15 @@ import toastr from 'toastr';
     e.preventDefault();
     e.stopPropagation();
 
-    let storedLang = localStorage.getItem('language');
-    let urlLang = '/en';
-    if (storedLang && storedLang === 'de') {
-      urlLang = '/de';
-    }
+    const pageLanguage = getAuthPageLanguage();
+    let urlLang = pageLanguage === 'de' ? '/de' : '/en';
 
     const signInForm = e.currentTarget;
     if (signInForm.dataset.authLoading === 'true') {
       return;
     }
 
-    const resetLoadingState = setFormSubmitLoading(signInForm, urlLang === '/de' ? 'Einloggen...' : 'Signing in...');
+    const resetLoadingState = setFormSubmitLoading(signInForm, getAuthLoadingText('signin'));
     const email = document.getElementById('signin-email').value;
     const password = document.getElementById('signin-password').value;
 
