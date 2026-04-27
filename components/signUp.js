@@ -257,7 +257,7 @@ async function handleSignUp(e) {
   const password = document.getElementById('signup-password').value;
   var confirm_password = document.getElementById("password-confirm").value;
   const profile_img = document.getElementById('profile_img');
-  let storedLang = localStorage.getItem("language");
+  let storedLang = getAuthPageLanguage();
   const signUpForm = e.currentTarget;
 
   if (signUpForm.dataset.authLoading === 'true') {
@@ -593,8 +593,43 @@ export function signUpPage() {
   //identify auth action forms
   let signUpForm = document.getElementById('wf-form-signup-form');
   //assign event listeners
-  if ( typeof(signUpForm) !== null ) {
+  if ( signUpForm && signUpForm.dataset.authSubmitAttached !== 'true' ) {
+    signUpForm.dataset.authSubmitAttached = 'true';
     signUpForm.addEventListener('submit', handleSignUp, true);
   }
+
+  const listenerRoot = document.body || document.documentElement;
+  if (listenerRoot.dataset.signUpSubmitAttached !== 'true') {
+    listenerRoot.dataset.signUpSubmitAttached = 'true';
+    document.addEventListener('submit', function(e) {
+      if (e.target && e.target.id === 'wf-form-signup-form') {
+        handleSignUp(e);
+      }
+    }, true);
+
+    document.addEventListener('click', function(e) {
+      const customButton = e.target.closest('.button-main');
+      const form = customButton ? customButton.closest('#wf-form-signup-form') : null;
+
+      if (!form || customButton.matches('button, input')) {
+        return;
+      }
+
+      e.preventDefault();
+      if (form.requestSubmit) {
+        form.requestSubmit();
+      } else {
+        form.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+      }
+    }, true);
+  }
   //getDateSignUp()
+}
+
+if (window.location.pathname.includes('signup-bho')) {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', signUpPage);
+  } else {
+    signUpPage();
+  }
 }

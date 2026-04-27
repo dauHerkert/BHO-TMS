@@ -95,7 +95,42 @@ export function signInPage(){
   let signInForm = document.getElementById('wf-form-signin-form');
 
   //assign event listeners
-  if(typeof(signInForm) !== null) {
+  if(signInForm && signInForm.dataset.authSubmitAttached !== 'true') {
+    signInForm.dataset.authSubmitAttached = 'true';
     signInForm.addEventListener('submit', handleSignIn, true)
+  }
+
+  const listenerRoot = document.body || document.documentElement;
+  if (listenerRoot.dataset.signInSubmitAttached !== 'true') {
+    listenerRoot.dataset.signInSubmitAttached = 'true';
+    document.addEventListener('submit', function(e) {
+      if (e.target && e.target.id === 'wf-form-signin-form') {
+        handleSignIn(e);
+      }
+    }, true);
+
+    document.addEventListener('click', function(e) {
+      const customButton = e.target.closest('.button-main');
+      const form = customButton ? customButton.closest('#wf-form-signin-form') : null;
+
+      if (!form || customButton.matches('button, input')) {
+        return;
+      }
+
+      e.preventDefault();
+      if (form.requestSubmit) {
+        form.requestSubmit();
+      } else {
+        form.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+      }
+    }, true);
+  }
+}
+
+if (window.location.pathname.includes('signin-bho')) {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', signInPage);
+  } else {
+    signInPage();
   }
 }
