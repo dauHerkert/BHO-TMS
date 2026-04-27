@@ -185,28 +185,40 @@ async function setDefaultFields(user) {
   // Use the setDoc function to set the userDefaultValues object
   return setDoc(userRef, userDefaultValues, { merge: true })
     .then(async () => {
+    console.log('[signup] user default fields saved');
+    console.log('[signup] uploading temporary profile image', { tempImageId });
     await userUploadImage(user, tempImageId, hiddenProfileInput, fileItem);
+    console.log('[signup] temporary profile image uploaded', { tempImageId });
     const oldImagePath = `profiles/${tempImageId}`;
     const newImagePath = `profiles/${user.uid}`;
 
     // Download the old image
+    console.log('[signup] getting temporary profile image URL', { oldImagePath });
     const oldImageRef = ref(storage, oldImagePath);
     const oldImageUrl = await getDownloadURL(oldImageRef);
-    console.log('oldImageUrl >>>', oldImageUrl);
+    console.log('[signup] temporary profile image URL received', { oldImageUrl });
 
     
     // Upload the image with the new name
+    console.log('[signup] fetching temporary profile image blob', { oldImagePath });
     const response = await fetch(oldImageUrl);
     const blob = await response.blob();
+    console.log('[signup] temporary profile image blob ready', { size: blob.size, type: blob.type });
     const newImageRef = ref(storage, newImagePath);
+    console.log('[signup] uploading final profile image', { newImagePath });
     await uploadBytes(newImageRef, blob, { contentType: 'image/png' });
+    console.log('[signup] final profile image uploaded', { newImagePath });
 
     // Delete the old image
+    console.log('[signup] deleting temporary profile image', { oldImagePath });
     await deleteObject(oldImageRef);
+    console.log('[signup] temporary profile image deleted', { oldImagePath });
 
     // Update the user's profile image path in Firestore
     const userRef = doc(db, 'users', user.uid);
+    console.log('[signup] updating user profile image path', { newImagePath });
     await updateDoc(userRef, { profileImagePath: newImagePath });
+    console.log('[signup] user profile image path updated', { newImagePath });
     
 
     // Sign up
@@ -246,7 +258,7 @@ async function setDefaultFields(user) {
     }, 1000);
   })
   .catch((err) => {
-      console.log('there was a problem updating the data', err);
+      console.error('[signup] there was a problem updating the data', err);
       toastr.error('There was an error updating your info');
       throw err;
   });
