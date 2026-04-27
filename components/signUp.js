@@ -258,7 +258,7 @@ async function handleSignUp(e) {
   var confirm_password = document.getElementById("password-confirm").value;
   const profile_img = document.getElementById('profile_img');
   let storedLang = getAuthPageLanguage();
-  const signUpForm = document.getElementById('wf-form-signup-form') || e.currentTarget || document.body;
+  const signUpForm = e.currentTarget;
 
   if (signUpForm.dataset.authLoading === 'true') {
     return;
@@ -591,7 +591,7 @@ if (saveButton) {
 
 export function signUpPage() {
   //identify auth action forms
-  let signUpForm = document.getElementById('wf-form-signup-form');
+  let signUpForm = document.getElementById('signup-form') || document.getElementById('wf-form-signup-form');
   //assign event listeners
   if ( signUpForm && signUpForm.dataset.authSubmitAttached !== 'true' ) {
     signUpForm.dataset.authSubmitAttached = 'true';
@@ -602,21 +602,11 @@ export function signUpPage() {
   if (listenerRoot.dataset.signUpSubmitAttached !== 'true') {
     listenerRoot.dataset.signUpSubmitAttached = 'true';
     document.addEventListener('submit', function(e) {
-      if (e.target && e.target.id === 'wf-form-signup-form') {
+      if (e.target && (e.target.id === 'signup-form' || e.target.id === 'wf-form-signup-form')) {
         handleSignUp(e);
       }
     }, true);
 
-    document.addEventListener('click', function(e) {
-      const customButton = e.target.closest('.button-main');
-
-      if (!customButton || customButton.matches('button, input')) {
-        return;
-      }
-
-      e.preventDefault();
-      handleSignUp(e);
-    }, true);
   }
   //getDateSignUp()
 }
