@@ -3,6 +3,14 @@ import {signInWithEmailAndPassword,auth,doc,db,getDoc,updateDoc, user} from './a
 import { getAuthLoadingText, getAuthPageLanguage, setFormSubmitLoading } from './authLoading';
 import toastr from 'toastr'; 
 
+const SIGNIN_SUBMIT_BUTTON_ID = 'signin-submit-button';
+
+function isSignInSubmitButton(e) {
+  const submitter = e.submitter || document.activeElement;
+
+  return submitter && submitter.id === SIGNIN_SUBMIT_BUTTON_ID;
+}
+
 // ============ Handle singin ===============
   /*=========================================================================================================================================================
    * Manages the user sign-in action. It retrieves the email and password from the sign-in form, uses the signInWithEmailAndPassword function from Firebase
@@ -11,13 +19,17 @@ import toastr from 'toastr';
   ==========================================================================================================================================================*/
 
   async function handleSignIn(e) {
+    if (!isSignInSubmitButton(e)) {
+      return;
+    }
+
     e.preventDefault();
     e.stopPropagation();
 
     const pageLanguage = getAuthPageLanguage();
     let urlLang = pageLanguage === 'de' ? '/de' : '/en';
 
-    const signInForm = e.currentTarget;
+    const signInForm = e.target;
     if (signInForm.dataset.authLoading === 'true') {
       return;
     }

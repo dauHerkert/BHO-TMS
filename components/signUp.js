@@ -7,6 +7,14 @@ import { getAuthLoadingText, getAuthPageLanguage, setFormSubmitLoading } from '.
 import 'select2';
 import 'select2/dist/css/select2.min.css';
 
+const SIGNUP_SUBMIT_BUTTON_ID = 'signup-submit-button';
+
+function isSignUpSubmitButton(e) {
+  const submitter = e.submitter || document.activeElement;
+
+  return submitter && submitter.id === SIGNUP_SUBMIT_BUTTON_ID;
+}
+
 //placeholder: 'Firma auswählen',
 $('#user_company').select2({
   placeholder: 'Select a company',
@@ -251,6 +259,10 @@ async function setDefaultFields(user) {
   * additional information.
 =============================================================================================================================================================*/
 async function handleSignUp(e) {
+  if (!isSignUpSubmitButton(e)) {
+    return;
+  }
+
   e.preventDefault();
   e.stopPropagation();
   const email = document.getElementById('signup-email').value;
@@ -258,7 +270,7 @@ async function handleSignUp(e) {
   var confirm_password = document.getElementById("password-confirm").value;
   const profile_img = document.getElementById('profile_img');
   let storedLang = getAuthPageLanguage();
-  const signUpForm = e.currentTarget;
+  const signUpForm = e.target;
 
   if (signUpForm.dataset.authLoading === 'true') {
     return;
