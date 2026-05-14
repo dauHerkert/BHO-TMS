@@ -9,7 +9,7 @@
  export const EVENTDATES = {
   MINDATE_DAY: 20,
   MINDATE_MONTH: 6,
-  MAXDATE_DAY: 27,
+  MAXDATE_DAY: 29,
   MAXDATE_MONTH: 6
  }
  
@@ -26,7 +26,7 @@
 
  /* Admin create user default dates */
  export const SUPPLIERSTARTDATE = '06-20-2026';
- export const SUPPLIERENDDATE = '06-27-2026';
+ export const SUPPLIERENDDATE = '06-29-2026';
 
  /**/
  export const DEFAULTCOMPANYID = 'vbIh3G2eLIOVEvXmKDKf';
