@@ -4,6 +4,10 @@ import { escapeHtml } from './ab_base';
 import Cropper from 'cropperjs';
 import toastr from 'toastr';
 
+function getOptionalFieldValue(field, fallback = '') {
+  return field ? field.value : fallback;
+}
+
 /*==========================================================================================================================================================
  * The code defines functions related to adding press information. It updates the press's start date, end date, special request, user zones, and form
  * submission status. It also triggers email notifications based on the language selected and reloads the page after a successful form submission.
@@ -65,8 +69,8 @@ function pressFormSubmit(e) {
       user_phone: escapeHtml(press_phone.value),
       user_itwa: press_itwa.value,
       press_workspot: press_workspace.value,
-      press_locker: press_locker.value,
-      press_hotel_info: press_hotel_info.value,
+      press_locker: getOptionalFieldValue(press_locker, false),
+      press_hotel_info: getOptionalFieldValue(press_hotel_info, false),
       press_card_number: escapeHtml(press_card_number.value),
       press_user_created: new Date(),
       press_form_user: true,
